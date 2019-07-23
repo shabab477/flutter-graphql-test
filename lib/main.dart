@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 
 void main() => runApp(MyApp());
 
@@ -57,32 +58,48 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Query(
-          options: QueryOptions(document: QueryService.fetchQuery(_offset)),
-          
-          builder: (result, {VoidCallback refetch}) {
-            if (result.loading) {
-              return Center(child: CircularProgressIndicator());
-            } else if (result.hasErrors) {
-              return Text(result.errors.toString());
+      body: FutureBuilder<RemoteConfig>(
+          future: RemoteConfigBuilder.setupRemoteConfig(),
+          builder: (BuildContext context, AsyncSnapshot<RemoteConfig> snapshot) {
+            if (!snapshot.hasData) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
             }
 
-            return ListView.builder(
-              controller: _controller,
-              itemBuilder: (context, index) {
-                if (index == result.data['recentNotes'].length) {
-                  return Container(
-                    height: 20.0,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: LinearProgressIndicator(),
-                    )
+            bool shouldShowTotalTasks = snapshot.data.getBool("shouldShowTotalTasks");
+
+            return Query(
+                options: QueryOptions(document:
+                  shouldShowTotalTasks? QueryService.fetchQueryWithTasks(_offset)
+                                              : QueryService.fetchQuery(_offset)),
+                builder: (result, {VoidCallback refetch}) {
+                  if (result.loading) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (result.hasErrors) {
+                    return Text(result.errors.toString());
+                  }
+
+                  return ListView.builder(
+                    controller: _controller,
+                    itemBuilder: (context, index) {
+                      if (index == result.data['recentNotes'].length) {
+                        return Container(
+                            height: 20.0,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: LinearProgressIndicator(),
+                            )
+                        );
+                      }
+
+                      return shouldShowTotalTasks?
+                        ExpandableCardItem(result.data['recentNotes'][index]) :
+                        SimpleCardItem(result.data['recentNotes'][index]);
+                    },
+                    itemCount: result.data["recentNotes"].length + 1,
                   );
                 }
-
-                return SimpleCardItem(result.data['recentNotes'][index]);
-              },
-              itemCount: result.data["recentNotes"].length + 1,
             );
           }
       )
@@ -182,6 +199,22 @@ class ExpandableCardItem extends SimpleCardItem {
           )
       ],
     );
+  }
+}
+
+class RemoteConfigBuilder {
+  static Future<RemoteConfig> setupRemoteConfig() async {
+    final RemoteConfig remoteConfig = await RemoteConfig.instance;
+    // Enable developer mode to relax fetch throttling
+    remoteConfig.setConfigSettings(RemoteConfigSettings(debugMode: true));
+    remoteConfig.setDefaults(<String, dynamic>{
+      'shouldShowTotalTasks': false
+    });
+
+    await remoteConfig.fetch(expiration: const Duration(seconds: 0));
+    await remoteConfig.activateFetched();
+
+    return remoteConfig;
   }
 }
 

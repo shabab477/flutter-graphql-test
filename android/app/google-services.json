@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1036129783784",
+    "firebase_url": "https://graphql-test-c5a36.firebaseio.com",
+    "project_id": "graphql-test-c5a36",
+    "storage_bucket": "graphql-test-c5a36.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1036129783784:android:3136e9a55a2c2cae",
+        "android_client_info": {
+          "package_name": "com.example.graphql_test"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1036129783784-pbid605eg1v40s7sq26dk061c5brcr9p.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.graphql_test",
+            "certificate_hash": "8655d164c38bbb5b50c70db2551d73979a96c41b"
+          }
+        },
+        {
+          "client_id": "1036129783784-pbogpnj7ih0ghmko3c3lruo2q2bld9cd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXkVmGqresZbpazBl9LidS6fUs0VqoNgE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1036129783784-pbogpnj7ih0ghmko3c3lruo2q2bld9cd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
